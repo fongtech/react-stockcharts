@@ -67,21 +67,38 @@ export default function() {
 						? "falling"
 						: "rising";
 
-				const current = prev.use === use
-					? {
-						af: Math.min(maxAccelerationFactor, prev.af + accelerationFactor),
-						fallingEp,
-						risingEp,
-						fallingSar,
-						risingSar,
-					}
-					: {
-						af: accelerationFactor,
-						fallingEp: now.low,
-						risingEp: now.high,
-						fallingSar: Math.max(prev.risingEp, now.high),
-						risingSar: Math.min(prev.fallingEp, now.low),
-					};
+                if (prev.use === use) {
+                    var _af = Math.min(maxAccelerationFactor, prev.af + accelerationFactor);
+                    if (use == 'rising') {
+                        if ( prev.risingEp < now.high) {
+                            _af = Math.min(maxAccelerationFactor, prev.af + accelerationFactor);
+                        } else {
+                            _af = prev.af;
+                        };
+                    } else {
+                        // falling
+                        if ( prev.fallingEp > now.low) {
+                            _af = Math.min(maxAccelerationFactor, prev.af + accelerationFactor);
+                        } else {
+                            _af = prev.af;
+                        };
+                    }
+                    var current = {
+                        af: _af,
+			            fallingEp: fallingEp,
+			            risingEp: risingEp,
+			            fallingSar: fallingSar,
+			            risingSar: risingSar
+			        };
+                } else {
+			        var current = {
+			            af: accelerationFactor,
+			            fallingEp: now.low,
+			            risingEp: now.high,
+			            fallingSar: Math.max(prev.risingEp, now.high),
+			            risingSar: Math.min(prev.fallingEp, now.low)
+			        };
+                };
 
 				const { date, high, low } = now;
 				return {
